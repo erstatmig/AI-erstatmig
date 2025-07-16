@@ -3,115 +3,72 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AI som din kampfælle</title>
+  <title>Spørg AI – Erstatmig.dk</title>
   <style>
     body {
+      font-family: Arial, sans-serif;
       margin: 0;
-      font-family: "Segoe UI", sans-serif;
-      background-color: #f4f1ed;
+      padding: 40px;
+      background-color: #f9f9f9;
     }
-
-    .page-wrapper {
-      display: flex;
-      justify-content: center;
-      padding: 0.5rem 0.5rem 0.5rem;
-    }
-
-    .content {
-      width: 100%;
-      max-width: 1300px;
-      background: #f3efea;
-      padding: 0.5rem;
-      border-radius: 6px;
-    }
-
-    .inner-box {
-      background: #fff;
-      border-radius: 6px;
-      padding: 2rem;
-      margin: 0 auto;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-      max-width: 860px;
-    }
-
     h1 {
-      font-size: 2rem;
-      margin-top: 0;
-      margin-bottom: 1rem;
-      color: #3d342f;
+      text-align: center;
+      margin-bottom: 20px;
     }
-
-    p {
-      font-size: 1.1rem;
-      margin-bottom: 2rem;
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px 30px;
+      border-left: 6px solid #c5ae9f;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
     }
-
-    textarea {
-      width: 100%;
-      padding: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 1rem;
-      resize: vertical;
-      box-sizing: border-box;
+    #chat-form {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
     }
-
+    #user-input {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+    }
     button {
+      padding: 10px 20px;
+      font-size: 16px;
       background-color: #c5ae9f;
       color: white;
       border: none;
-      padding: 0.8rem 1.5rem;
-      font-size: 1rem;
-      border-radius: 8px;
       cursor: pointer;
-      margin: 1rem auto 0;
-      display: block;
     }
-
     button:hover {
-      background-color: #a9917e;
+      background-color: #b49d8f;
     }
-
-    .reply-box {
-      margin-top: 2rem;
-      background: #f9f7f6;
-      padding: 1rem;
-      border-radius: 8px;
-      border-left: 5px solid #c5ae9f;
-      white-space: pre-wrap;
-    }
-
-    .spinner {
-      margin-top: 1rem;
+    #status {
       font-style: italic;
-      color: #888;
-      animation: blink 1.2s infinite;
-      text-align: center;
+      color: gray;
+      margin-bottom: 10px;
     }
-
-    @keyframes blink {
-      0% { opacity: 0.2; }
-      50% { opacity: 1; }
-      100% { opacity: 0.2; }
+    #response-output {
+      white-space: pre-wrap;
+      line-height: 1.5;
+      background: #f1f1f1;
+      padding: 15px;
+      border-radius: 4px;
     }
   </style>
 </head>
 <body>
-  <main class="page-wrapper">
-    <section class="content">
-      <div class="inner-box">
-        <h1>AI som din kampfælle</h1>
-        <p>Skriv dit spørgsmål eller din klage-idé herunder, og tryk “Send”.</p>
+  <div class="container">
+    <h1>Spørg Erstatmig AI</h1>
+    <form id="chat-form">
+      <input type="text" id="user-input" placeholder="Skriv dit spørgsmål her..." required />
+      <button type="submit">Spørg AI</button>
+    </form>
+    <div id="status"></div>
+    <div id="response-output"></div>
+  </div>
 
-        <textarea id="userInput" rows="5" placeholder="Skriv din besked her..."></textarea>
-        <button onclick="sendToAI()">Send</button>
-
-        <div id="spinner" class="spinner" style="display: none;">AI tænker ...</div>
-        <div id="response" class="reply-box" style="display:none;"></div>
-      </div>
-    </section>
-  </main>
-
-  <script src="ai.js"></script>
+  <script src="/ai.js"></script>
 </body>
 </html>
