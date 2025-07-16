@@ -1,42 +1,30 @@
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Kun POST tilladt" });
-  }
+// ai.js
+async function sendToAI() {
+  const inputField = document.getElementById("userInput");
+  const responseBox = document.getElementById("response");
 
-  const { prompt } = req.body;
+  const message = inputField.value.trim();
+  if (!message) return;
 
-  if (!prompt) {
-    return res.status(400).json({ error: "Ingen prompt modtaget" });
-  }
-
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    return res.status(500).json({ error: "Manglende OpenAI-nøgle" });
-  }
+  responseBox.style.display = "block";
+  responseBox.textContent = "Svar afventer...";
 
   try {
-    const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
+    const res = await fetch("/api/chat", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
+        "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        model: "gpt-4",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.7
-      })
+      body: JSON.stringify({ message })
     });
 
-    const data = await openaiRes.json();
-
-    if (data.error) {
-      return res.status(500).json({ error: data.error.message });
+    const data = await res.json();
+    if (data.reply) {
+      responseBox.textContent = data.reply;
+    } else {
+      responseBox.textContent = "Intet svar modtaget.";
     }
-
-    const reply = data.choices?.[0]?.message?.content?.trim();
-    res.status(200).json({ reply });
-  } catch (err) {
-    res.status(500).json({ error: "Noget gik galt: " + err.message });
+  } catch (error) {
+    responseBox.textContent = "Der opstod en fejl ved afsendelse.";
   }
 }
