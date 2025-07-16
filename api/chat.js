@@ -6,7 +6,6 @@ export default async function handler(req, res) {
   }
 
   const { prompt } = req.body;
-
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
@@ -27,9 +26,15 @@ export default async function handler(req, res) {
       }),
     });
 
-    const raw = await apiRes.text();
+    const data = await apiRes.json();
 
-    return res.status(200).json({ reply: raw }); // vi returnerer altid noget i feltet 'reply'
+    const reply = data.choices?.[0]?.message?.content?.trim();
+
+    if (!reply) {
+      return res.status(500).json({ reply: 'GPT svarede ikke som forventet.' });
+    }
+
+    return res.status(200).json({ reply });
 
   } catch (error) {
     return res.status(500).json({ reply: 'Fejl i kald til OpenAI: ' + error.message });
