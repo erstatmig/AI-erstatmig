@@ -19,7 +19,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4', // eller 'gpt-3.5-turbo'
+        model: 'gpt-4', // evt. prøv 'gpt-3.5-turbo' hvis du ikke har adgang til gpt-4
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.7
       }),
@@ -27,13 +27,10 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-      return res.status(500).json({ error: 'GPT svarer ikke som forventet', raw: data });
-    }
-
-    res.status(200).json({ reply: data.choices[0].message.content.trim() });
+    // Send hele svaret tilbage som debug
+    return res.status(200).json({ raw_response: data });
 
   } catch (error) {
-    res.status(500).json({ error: 'Fejl i OpenAI-kaldet', details: error.message });
+    return res.status(500).json({ error: 'Fejl i OpenAI-kaldet', details: error.message });
   }
 }
