@@ -1,36 +1,90 @@
 <!DOCTYPE html>
 <html lang="da">
 <head>
-  <meta charset="UTF-8">
-  <title>Stil dit spørgsmål</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI som din kampfælle</title>
+  <link rel="stylesheet" href="style.css">
   <style>
-    body { font-family: sans-serif; max-width: 600px; margin: 40px auto; }
-    textarea { width: 100%; height: 120px; }
-    button { padding: 10px 20px; margin-top: 10px; }
-    #response { margin-top: 20px; white-space: pre-wrap; background: #f5f5f5; padding: 10px; border-left: 4px solid #ccc; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+      background-color: #f4f1ed;
+      color: #333;
+    }
+
+    .page-wrapper {
+      display: flex;
+      justify-content: center;
+      padding: 4rem 1rem;
+    }
+
+    .content {
+      max-width: 700px;
+      background: #fff;
+      padding: 2rem 2.5rem;
+      border-radius: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: #3d342f;
+    }
+
+    p {
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      resize: vertical;
+    }
+
+    button {
+      background-color: #c5ae9f;
+      color: white;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+
+    button:hover {
+      background-color: #a9917e;
+    }
+
+    .reply-box {
+      margin-top: 2rem;
+      background: #f9f7f6;
+      padding: 1rem;
+      border-radius: 8px;
+      border-left: 5px solid #c5ae9f;
+      white-space: pre-wrap;
+    }
   </style>
 </head>
 <body>
+  <main class="page-wrapper">
+    <section class="content">
+      <h1>AI som din kampfælle</h1>
+      <p>Skriv dit spørgsmål eller din klage-idé herunder, og tryk “Send”.</p>
 
-  <h1>Stil dit spørgsmål til AI</h1>
-  <textarea id="input" placeholder="Hvad vil du spørge om?"></textarea><br>
-  <button onclick="sendMessage()">Send</button>
-  <div id="response"></div>
+      <textarea id="userInput" rows="5" placeholder="Skriv din besked her..."></textarea>
+      <button onclick="sendToAI()">Send</button>
 
-  <script>
-    async function sendMessage() {
-      const input = document.getElementById('input').value;
+      <div id="response" class="reply-box" style="display:none;"></div>
+    </section>
+  </main>
 
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: input })
-      });
-
-      const data = await res.json();
-      document.getElementById('response').innerText = data.reply || data.error || 'Ingen svar fra serveren';
-    }
-  </script>
-
+  <script src="ai.js"></script>
 </body>
 </html>
