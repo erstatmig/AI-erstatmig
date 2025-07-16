@@ -1,58 +1,61 @@
-// /api/chat.js
+// Sørger for at koden ikke kører som en Edge Function
+export const config = {
+  runtime: 'nodejs',
+};
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Kun POST tilladt' });
   }
 
-  const { userInput } = req.body;
+  const body = req.body;
 
-  const messages = [
-    {
-      role: 'system',
-      content: `Du er en dansk juridisk AI-assistent. 
-Du svarer kun på spørgsmål om Forsikringsaftaleloven (FAL). 
-Du må ikke bruge Forvaltningsloven, GDPR eller andre love. 
-Hvis du ikke kan svare med sikkerhed, så sig det ærligt. 
-Svar kort, klart og præcist.
+  // Debug: Log hele body
+  if (!body || !body.message) {
+    return res.status(400).json({ error: 'Manglende "message" i request body' });
+  }
 
-Centrale bestemmelser:
-- § 33: Hvis kunden har givet urigtige oplysninger, kan selskabet afvise dækning – men kun hvis det har betydning for risikoen.
-- § 34: Selskabet mister retten til at påberåbe sig § 33, hvis det vidste eller burde vide at oplysningerne var forkerte og ikke reagerede.
-- § 35: Hvis selskabet vil undgå at være bundet, skal det gøre det klart og rettidigt, ellers gælder forsikringen fortsat.
+  // Hent API-nøgle fra env - eller fallback
+  const apiKey = process.env.OPENAI_API_KEY || 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxx'; // ← Erstat med din rigtige nøgle som test
 
-Svar kun hvis du kan gøre det korrekt og relevant.`
-    },
-    {
-      role: 'user',
-      content: userInput
-    }
-  ];
+  if (!apiKey || apiKey.startsWith('sk-xxxxxxxx')) {
+    return res.status(500).json({
+      error: 'API-nøgle mangler eller er fallback',
+      hint: 'Sørg for at OPENAI_API_KEY er sat i Vercel Environment Variables og at runtime er nodejs',
+      env_debug: process.env,
+    });
+  }
 
   try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const apiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
+        'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',
-        messages,
-        temperature: 0.3,
-      })
+        messages: [{ role: 'user', content: body.message }],
+        temperature: 0.7,
+      }),
     });
 
-    const data = await response.json();
-
-    if (data.error) {
-      return res.status(500).json({ error: data.error.message });
+    if (!apiResponse.ok) {
+      const errData = await apiResponse.json();
+      return res.status(apiResponse.status).json({
+        error: 'OpenAI API-fejl',
+        detail: errData,
+      });
     }
 
-    const aiReply = data.choices?.[0]?.message?.content || 'Intet svar.';
-    res.status(200).json({ reply: aiReply });
+    const data = await apiResponse.json();
+    const reply = data.choices?.[0]?.message?.content || '[Intet svar modtaget]';
 
+    return res.status(200).json({ reply });
   } catch (error) {
-    console.error('Fejl i API-kald:', error);
-    res.status(500).json({ error: 'Fejl ved kommunikation med OpenAI.' });
+    return res.status(500).json({
+      error: 'Serverfejl i chat-handler',
+      detail: error.message,
+    });
   }
 }
