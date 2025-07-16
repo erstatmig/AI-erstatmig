@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
-    return res.status(500).json({ error: 'Mangler OpenAI API-nøgle (process.env)' });
+    return res.status(500).json({ reply: 'API-nøgle mangler' });
   }
 
   try {
@@ -21,18 +21,17 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo',  // fallback model
+        model: 'gpt-3.5-turbo',
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.7
       }),
     });
 
-    const rawText = await apiRes.text();
+    const raw = await apiRes.text();
 
-    // Returner altid hele svaret for debug
-    return res.status(200).json({ debug_raw: rawText });
+    return res.status(200).json({ reply: raw }); // vi returnerer altid noget i feltet 'reply'
 
   } catch (error) {
-    return res.status(500).json({ error: 'Fejl i kald til OpenAI', details: error.message });
+    return res.status(500).json({ reply: 'Fejl i kald til OpenAI: ' + error.message });
   }
 }
