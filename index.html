@@ -1,27 +1,17 @@
-<!DOCTYPE html>
-<html lang="da">
-<head>
-  <meta charset="UTF-8">
-  <title>Læser spørger – AI svarer</title>
-</head>
-<body>
-  <h1>Stil dit spørgsmål</h1>
-  <textarea id="prompt" rows="5" cols="60" placeholder="Skriv dit spørgsmål her..."></textarea><br>
-  <button onclick="sendPrompt()">Send</button>
-  <pre id="response"></pre>
+<script>
+  async function sendPrompt() {
+    const textarea = document.getElementById('prompt');
+    const prompt = textarea.value;
 
-  <script>
-    async function sendPrompt() {
-      const prompt = document.getElementById('prompt').value;
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt })
-      });
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
 
-      const data = await res.json();
-      document.getElementById('response').innerText = data.reply || data.error;
-    }
-  </script>
-</body>
-</html>
+    const data = await res.json();
+
+    document.getElementById('response').innerText = data.reply || 'Intet svar fra serveren';
+    textarea.value = ''; // ryd feltet efter send
+  }
+</script>
