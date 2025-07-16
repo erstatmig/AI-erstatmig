@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server'
 import { OpenAI } from 'openai'
 import fs from 'fs'
@@ -12,30 +11,35 @@ export async function POST(req) {
   const { message } = await req.json()
   const dataPath = path.join(process.cwd(), 'public', 'erstatmig_ai_viden.json')
 
-  let dokumenter = []
+  let erstatmigData = {}
   try {
     const jsonData = fs.readFileSync(dataPath, 'utf-8')
-    dokumenter = JSON.parse(jsonData)
+    erstatmigData = JSON.parse(jsonData)
   } catch (error) {
     console.error('Fejl ved indlæsning af lokal viden:', error)
   }
 
-  // Find de mest relevante tekstbidder (her: alle med keyword match – simpelt)
-  const relevante = dokumenter.filter(doc =>
-    doc.indhold.toLowerCase().includes(message.toLowerCase()) ||
-    doc.titel.toLowerCase().includes(message.toLowerCase())
-  )
+  // Saml al viden i én lang tekststreng
+  const samletViden = `
+INTRO:
+${erstatmigData.intro}
 
-  // Brug top 3 som kontekst
-  const kontekst = relevante.slice(0, 3).map(doc => `### ${doc.titel}
-${doc.indhold.trim()}`).join("\n\n")
+NØGLEBEGREBER:
+${erstatmigData.nøglebegreber?.join(", ")}
+
+CENTRALE PÅSTANDE:
+${erstatmigData.centrale_påstande?.map(p => `- ${p}`).join("\n")}
+
+CITATER:
+${erstatmigData.citater?.map(c => `> ${c}`).join("\n")}
+`
 
   const prompt = `
-Du er en intelligent assistent, der rådgiver borgere ud fra Erstatmig.dk's perspektiv. 
+Du er en intelligent assistent, der rådgiver borgere ud fra Erstatmig.dk's perspektiv.
 Nedenfor er udvalgt viden fra Erstatmig.dk, som du skal bruge som grundlag.
 Besvar brugerens spørgsmål loyalt mod denne viden og suppler med din generelle viden, hvis det er relevant.
 
-${kontekst || "(Der blev ikke fundet noget relevant fra Erstatmig.dk.)"}
+${samletViden}
 
 Brugerens spørgsmål: ${message}
 `
