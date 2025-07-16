@@ -27,21 +27,10 @@ export default async function handler(req, res) {
       }),
     });
 
-    const raw = await apiRes.text(); // ikke json endnu
-    let parsed;
+    const rawText = await apiRes.text();
 
-    try {
-      parsed = JSON.parse(raw);
-    } catch (e) {
-      return res.status(500).json({ error: 'Kunne ikke parse svar fra OpenAI', raw });
-    }
-
-    if (!parsed.choices || !parsed.choices[0]) {
-      return res.status(500).json({ error: 'Ugyldigt svar fra OpenAI', full: parsed });
-    }
-
-    const reply = parsed.choices[0].message?.content?.trim() || '[Intet indhold i svar]';
-    return res.status(200).json({ reply });
+    // Returner altid hele svaret for debug
+    return res.status(200).json({ debug_raw: rawText });
 
   } catch (error) {
     return res.status(500).json({ error: 'Fejl i kald til OpenAI', details: error.message });
