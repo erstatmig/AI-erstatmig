@@ -20,11 +20,21 @@
     }
 
     .content {
-      max-width: 700px;
+      width: 100%;
+      max-width: 1000px;
+      background: #f3efea;
+      padding: 3rem;
+      border-radius: 24px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .inner-box {
       background: #fff;
-      padding: 2rem 2.5rem;
-      border-radius: 20px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 700px;
+      margin: 0 auto;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
     }
 
     h1 {
@@ -70,18 +80,34 @@
       border-left: 5px solid #c5ae9f;
       white-space: pre-wrap;
     }
+
+    .spinner {
+      margin-top: 1rem;
+      font-style: italic;
+      color: #888;
+      animation: blink 1.2s infinite;
+    }
+
+    @keyframes blink {
+      0% { opacity: 0.2; }
+      50% { opacity: 1; }
+      100% { opacity: 0.2; }
+    }
   </style>
 </head>
 <body>
   <main class="page-wrapper">
     <section class="content">
-      <h1>AI som din kampfælle</h1>
-      <p>Skriv dit spørgsmål eller din klage-idé herunder, og tryk “Send”.</p>
+      <div class="inner-box">
+        <h1>AI som din kampfælle</h1>
+        <p>Skriv dit spørgsmål eller din klage-idé herunder, og tryk “Send”.</p>
 
-      <textarea id="userInput" rows="5" placeholder="Skriv din besked her..."></textarea>
-      <button onclick="sendToAI()">Send</button>
+        <textarea id="userInput" rows="5" placeholder="Skriv din besked her..."></textarea>
+        <button onclick="sendToAI()">Send</button>
 
-      <div id="response" class="reply-box" style="display:none;"></div>
+        <div id="spinner" class="spinner" style="display: none;">AI tænker ...</div>
+        <div id="response" class="reply-box" style="display:none;"></div>
+      </div>
     </section>
   </main>
 
