@@ -25,7 +25,13 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'gpt-4',
-        messages: [{ role: 'user', content: message }],
+        messages: [
+          {
+            role: 'system',
+            content: 'Du er en dansk juridisk ekspert i forsikringsaftaler og svarer altid ud fra dansk ret. Du forklarer relevante paragraffer fra Forsikringsaftaleloven med præcision og uden at gætte.'
+          },
+          { role: 'user', content: message }
+        ],
         temperature: 0.7
       })
     });
