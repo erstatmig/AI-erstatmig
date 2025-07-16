@@ -1,61 +1,47 @@
-// Sørger for at koden ikke kører som en Edge Function
-export const config = {
-  runtime: 'nodejs',
-};
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Kun POST tilladt' });
+    return res.status(405).json({ error: 'Only POST requests allowed' });
   }
 
-  const body = req.body;
+  const apiKey = process.env.OPENAI_API_KEY;
 
-  // Debug: Log hele body
-  if (!body || !body.message) {
-    return res.status(400).json({ error: 'Manglende "message" i request body' });
+  if (!apiKey) {
+    console.error('Missing OPENAI_API_KEY');
+    return res.status(500).json({ error: 'Missing OpenAI API key' });
   }
 
-  // Hent API-nøgle fra env - eller fallback
-  const apiKey = process.env.OPENAI_API_KEY || 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxx'; // ← Erstat med din rigtige nøgle som test
+  const { message } = req.body;
 
-  if (!apiKey || apiKey.startsWith('sk-xxxxxxxx')) {
-    return res.status(500).json({
-      error: 'API-nøgle mangler eller er fallback',
-      hint: 'Sørg for at OPENAI_API_KEY er sat i Vercel Environment Variables og at runtime er nodejs',
-      env_debug: process.env,
-    });
+  if (!message) {
+    return res.status(400).json({ error: 'Missing message in request body' });
   }
 
   try {
-    const apiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+    const openaiRes = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [{ role: 'user', content: body.message }],
-        temperature: 0.7,
-      }),
+        model: 'gpt-4',
+        messages: [{ role: 'user', content: message }],
+        temperature: 0.7
+      })
     });
 
-    if (!apiResponse.ok) {
-      const errData = await apiResponse.json();
-      return res.status(apiResponse.status).json({
-        error: 'OpenAI API-fejl',
-        detail: errData,
-      });
+    if (!openaiRes.ok) {
+      const error = await openaiRes.json();
+      console.error('OpenAI API error:', error);
+      return res.status(500).json({ error: 'Failed to get response from OpenAI', details: error });
     }
 
-    const data = await apiResponse.json();
-    const reply = data.choices?.[0]?.message?.content || '[Intet svar modtaget]';
+    const data = await openaiRes.json();
+    const reply = data.choices?.[0]?.message?.content || 'Ugyldigt svar fra OpenAI';
+    res.status(200).json({ reply });
 
-    return res.status(200).json({ reply });
-  } catch (error) {
-    return res.status(500).json({
-      error: 'Serverfejl i chat-handler',
-      detail: error.message,
-    });
+  } catch (err) {
+    console.error('Server error:', err);
+    res.status(500).json({ error: 'Internal server error' });
   }
 }
